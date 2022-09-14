@@ -27,7 +27,7 @@ const reset = async () => {
   // await cleanup.killAllCreatures()
   // await cleanup.removeAllCreatures()
   // reset scores
-  // await cleanup.resetUserPointsAndMagic(date)
+  await cleanup.resetUserPointsAndMagic(date)
   // kill creatures
   // remove creatures
   // TODO:
@@ -55,6 +55,7 @@ const startGame = async () => {
 }
 
 const assignKeys = async () => {
+  // await checkpoint.save(new Date())
   await keys.assignKeys()
 }
 

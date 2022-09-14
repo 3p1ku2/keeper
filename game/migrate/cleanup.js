@@ -75,14 +75,15 @@ async function _resetUserPointsAndMagic(n, date, users) {
         console.log("single entry user:", user.discord.userid)
       }
       user.points = 0
-      if (user.coins < 0) {
-        user.coins = 0
-      }
-      // get all spells
-      let c = await server.db.collection("items").count({ owner: user.discord.userid })
-      if (c && c > 0) {
-        user.coins += c * 10
-      }
+      // if (user.coins < 0) {
+      //   user.coins = 0
+      // }
+      // // get all spells
+      // let c = await server.db.collection("items").count({ owner: user.discord.userid })
+      // if (c && c > 0) {
+      //   user.coins += c * 10
+      // }
+      user.coins = 0
       await server.db.collection("users").updateOne({ 'discord.userid': user.discord.userid }, { $set: { points: 0, num_chants: 0, referrals: [], coins: user.coins, history: user.history, referral_target_cult_id: '' } })
     } finally {
       release()
@@ -92,14 +93,19 @@ async function _resetUserPointsAndMagic(n, date, users) {
 }
 
 async function resetUserPointsAndMagic(date) {
-  if (false){
+  if (true){
     // TODO: improve threading so we wait for all user updates to finish
     // delete all spells
     await server.db.collection("items").remove({}, { $multi: true })
+    await server.db.collection("users").update(
+      {},
+      {$set: { coins: 0 }}
+    )
+    return
   }
   await server.loadDiscordUsers()
   console.log("loading users from db")
-  let users = await server.db.collection("users").find({ 'discord.userid': { $exists: true, $ne: '', $nin: server.admins, points: {$gt: 0} } }) //.sort({ 'points': -1, 'num_chants': -1 })
+  let users = await server.db.collection("users").find({ 'discord.userid': { $exists: true, $ne: '', $nin: server.admins}, points: {$gt: 0} }) //.sort({ 'points': -1, 'num_chants': -1 })
   users = await users.toArray()
   console.log("num users:", users.length)
   var batchSize = users.length / 6
@@ -121,6 +127,7 @@ async function resetCultScores() {
 }
 
 async function markInGame() {
+  console.log("mark in game")
   let members = await server.loadDiscordUsers()
   members = members.map((member) => member)
   for(const member of members) {
@@ -134,6 +141,7 @@ async function markInGame() {
     // }
 
     if (user) {
+      console.log("marking user:", member.id)
       await server.db.collection("users").updateOne({ 'discord.userid': member.id }, { $set: { onboarded: true, cult_id: '' } })
     }
   }

@@ -121,7 +121,9 @@ async function _handleJoin(server, member, updateStats = true) {
   if (member.id == '779732189482188830') {
     return
   }
-
+  // use second bot for role assignment
+  let clients = server.getClients()
+  let _member =  clients[clients.length-1].getMember(server.Id, member.id)
   // Add role
   let cult = server.Cults.get(user.cult_id)
   if (!cult) {
@@ -130,14 +132,14 @@ async function _handleJoin(server, member, updateStats = true) {
   }
   console.log("handleJoin: adding cult role of cult:", cult.id, "for user:", member.id)
   try {
-    await member.roles.add(cult.roleId)
+    await _member.roles.add(cult.roleId)
   } catch (err) {
     console.log("error adding role:", err)
   }
   console.log("handleJoin: added cult role of cult:", cult.id, "for user:", member.id)
   console.log("handleJoin: adding cultist role for user:", member.id)
   try {
-    await member.roles.add(server.Roles.Cultist)
+    await _member.roles.add(server.Roles.Cultist)
   } catch (err) {
     console.log("error adding role:", err)
   }
@@ -145,7 +147,7 @@ async function _handleJoin(server, member, updateStats = true) {
   if (getAllPastChantsCount(user) < 1) {
     console.log("handleJoin: adding unzealous role for user:", member.id)
     try {
-      await member.roles.add(server.Roles.Unzealous)
+      await _member.roles.add(server.Roles.Unzealous)
     } catch (err) {
       console.log("add unzealous role errror:", err)
     }

@@ -131,7 +131,7 @@ async function handleChair(interaction) {
       return true
     }
     
-    if(Math.random() < 0.5) {
+    if(true || Math.random() < 0.5) {
       let idx = Math.floor(Math.random() * server.Cults.values().length)
       cult = server.Cults.values()[idx]
     } else {
