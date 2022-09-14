@@ -204,7 +204,7 @@ async function getUserStats(server, interaction, userId) {
   let allPastReferrals = getAllPastReferralsSet(user)
   let pastChants = getAllPastChantsCount(user)
   let allPoints = getAllPastPoints(user)
-  let msg = `<:magic:975922950551244871> ${user.coins ? user.coins : 0} 🗝${user.allowlists} XP${allPoints} (ch. xp: ${user.points})`
+  let msg = `<:magic:975922950551244871> ${user.coins ? user.coins : 0} 🗝${user.allowlists} ${user.corrupted_key ? `𖣣 ${user.corrupted_key} ` : ''}XP ${allPoints} (ch. xp: ${user.points})`
   msg += `\n𐂥 cult point multiplier: x${cpBoost ? cpBoost : 1}\n<:magic:975922950551244871> magic boost: +${magicBoost ? magicBoost : 0}`
     msg+= `\n\n**this chapter**\nrecruits: ${user.referrals ? user.referrals.length : 0} chants: ${user.num_chants ? user.num_chants : 0}`
   msg += `\n\n**all chapters**\nrecruits: ${allPastReferrals.size} chants: ${pastChants}`
@@ -224,7 +224,7 @@ async function handleUserStatsInteraction(server, interaction, userId) {
   }
   if (_stats instanceof Error ) {
     try {
-      await interaction.editReply({ content: _state, ephemeral: true })
+      await interaction.editReply({ content: _stats, ephemeral: true })
     } catch (error) {
       console.log('handleUserStatsInteraction user not found reply error:', error)
     }
