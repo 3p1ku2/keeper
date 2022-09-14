@@ -122,8 +122,8 @@ async function _handleJoin(server, member, updateStats = true) {
     return
   }
   // use second bot for role assignment
-  let clients = server.getClients()
-  let _member =  clients[clients.length-1].getMember(server.Id, member.id)
+  // let clients = server.getClients()
+  // let _member =  clients[clients.length-1].getMember(server.Id, member.id)
   // Add role
   let cult = server.Cults.get(user.cult_id)
   if (!cult) {
@@ -132,14 +132,14 @@ async function _handleJoin(server, member, updateStats = true) {
   }
   console.log("handleJoin: adding cult role of cult:", cult.id, "for user:", member.id)
   try {
-    await _member.roles.add(cult.roleId)
+    await member.roles.add(cult.roleId)
   } catch (err) {
     console.log("error adding role:", err)
   }
   console.log("handleJoin: added cult role of cult:", cult.id, "for user:", member.id)
   console.log("handleJoin: adding cultist role for user:", member.id)
   try {
-    await _member.roles.add(server.Roles.Cultist)
+    await member.roles.add(server.Roles.Cultist)
   } catch (err) {
     console.log("error adding role:", err)
   }
@@ -147,7 +147,7 @@ async function _handleJoin(server, member, updateStats = true) {
   if (getAllPastChantsCount(user) < 1) {
     console.log("handleJoin: adding unzealous role for user:", member.id)
     try {
-      await _member.roles.add(server.Roles.Unzealous)
+      await member.roles.add(server.Roles.Unzealous)
     } catch (err) {
       console.log("add unzealous role errror:", err)
     }
@@ -158,7 +158,7 @@ async function _handleJoin(server, member, updateStats = true) {
   if (user.referred_by && user.referred_by !== "") {
     console.log("handling referral...")
     let zealot = await server.getUserWithReferralKey(user.referred_by)
-    if (zealot) {
+    if (zealot && zealot.discord.userid != member.id) {
       console.log("zealot:", zealot)
       let referrals = getAllPastReferralsSet(zealot)
       let addOne = !referrals.has(member.id)

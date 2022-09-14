@@ -17,6 +17,11 @@ class ServerRules {
     let rules = this.channelRules[id]
     return rules && rules.noPublicInteractions
   }
+  
+  isNoRecruitmentChannel(id){
+    let rules = this.channelRules[id]
+    return rules && rules.noRecruitmentLinks
+  }
 }
 
 class Server {
@@ -214,7 +219,11 @@ var GLOBAL_CHANNELS = {
   GameTimerChannelId: "999040396258717706",
   AltarChannelId: "978078135193071657",
   AutonomousCouncilChannelId: "1007018715474313216",
-  CultsSectionId: "970091626779254875"
+  CultsSectionId: "970091626779254875",
+  // non-spells
+  Banter: "1017668088096890901",
+  Questions: "1017668716743381003",
+  Diviners: "1017964002913034250"
 }
 
 const spellQuestServer = new Server("970091626779254874",
@@ -329,10 +338,28 @@ const spellQuestServer = new Server("970091626779254874",
     },
     [GLOBAL_CHANNELS.AutonomousCouncilChannelId]: {
       noPublicInteractions: true,
+      noRecruitmentLinks: true,
     },
     [GLOBAL_CHANNELS.AltarChannelId]: {
       noPublicInteractions: true,
+      noRecruitmentLinks: true,
     },
+    [GLOBAL_CHANNELS.AltarChannelId]: {
+      noPublicInteractions: true,
+      noRecruitmentLinks: true,
+    },
+    [GLOBAL_CHANNELS.Banter]: {
+      noPublicInteractions: true,
+      noRecruitmentLinks: true,
+    },
+    [GLOBAL_CHANNELS.Questions]: {
+      noPublicInteractions: true,
+      noRecruitmentLinks: true,
+    },
+    [GLOBAL_CHANNELS.Diviners]: {
+      noPublicInteractions: true,
+      noRecruitmentLinks: true,
+    }
   })
 )
 

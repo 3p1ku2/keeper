@@ -4,7 +4,7 @@ var homecomingActive = false
 
 var lastChapterEndTime = 1660935600 * 1000
 var chapterStartTime = 1661558400 * 1000  // 1661558400 * 1000 // 
-var nextChapaterEndTime = 1662163200 * 1000 
+var nextChapaterEndTime = 1664092800 * 1000 
 
 async function _load(kvstore){
   let _isRestarting = await kvstore.get("isRestarting")

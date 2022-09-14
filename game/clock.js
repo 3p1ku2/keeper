@@ -9,17 +9,21 @@ async function update() {
   let channel = server.getChannel(server.channels.GameTimerChannelId)
   let now = Date.now()
   if (now >= nextChapaterEndTime()) {
+    // make sure matches backend
+    let nextEnd = await server.kvstore.get("nextChapaterEndTime")
+    if (now >= nextEnd) {
     // if (!HasCheckpointed || channel.name != 'RESTARTING...') {
-    //   await batch.checkpoint(new Date())
-    //   HasCheckpointed = true
-    // }
-    try {
-      await channel.setName("RESTARTING...")
-    } catch (error) {
-      console.log("setName error:", error)
+      //   await batch.checkpoint(new Date())
+      //   HasCheckpointed = true
+      // }
+      try {
+        await channel.setName("RESTARTING...")
+      } catch (error) {
+        console.log("setName error:", error)
+      }
+      throw new Error("game over")
+      return
     }
-    throw new Error("game over")
-    return
   }
   let remaining = nextChapaterEndTime() - now
   let name = "⏳ " + toHrMin(Math.floor(remaining / 1000))

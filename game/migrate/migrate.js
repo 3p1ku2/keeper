@@ -36,7 +36,7 @@ const reset = async () => {
 
 const startHomecoming = async () => {
   await server.kvstore.set("chapterStartTime", 1662458400 * 1000)
-  await server.kvstore.set("nextChapaterEndTime", 1662890400 * 1000)
+  await server.kvstore.set("nextChapaterEndTime", 1664092800 * 1000)
   await server.kvstore.set("homecomingActive", true)
 }
 
@@ -50,8 +50,8 @@ const stopHomecoming = async () => {
 const startGame = async () => {
   await server.kvstore.set("homecomingActive", false)
   await server.kvstore.set("isRestarting", false)
-  await server.kvstore.set("chapterStartTime", 1662458400 * 1000)
-  await server.kvstore.set("nextChapaterEndTime", 1662976800 * 1000)
+  // await server.kvstore.set("chapterStartTime", (new Date()).getTime())
+  await server.kvstore.set("nextChapaterEndTime", 1664092800 * 1000)
 }
 
 const assignKeys = async () => {

@@ -231,6 +231,10 @@ async function handle(msg) {
     await msg.delete() 
     return
   }
+  if(msg.content.includes("z=") && server.rules.isNoRecruitmentChannel(msg.channel.id) && !server.isAdmin(msg.author.id)){
+    await msg.delete() 
+    return
+  }
   if(msg.channel.id == '986712037633720390' && !server.isAdmin(msg.author.id) && msg.interaction == null) {
     await msg.delete()
     return
