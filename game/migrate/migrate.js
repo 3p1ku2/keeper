@@ -55,7 +55,7 @@ const startGame = async () => {
 }
 
 const assignKeys = async () => {
-  await keys.assignKeys(new Date('2022-08-19T04:01:02.825Z'))
+  await keys.assignKeys()
 }
 
 exports.migrate = {

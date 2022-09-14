@@ -75,11 +75,27 @@ async function first10ChantUsers() {
   }
 }
 
+async function assignZealotKeys() {
+  // get top 66 users
+  await server.loadDiscordUsers()
+  var guild = server.client.guilds.cache.get(server.Id)
+  let mindless = await guild.roles.cache.get(server.Roles.TrueBeliever).members.map(m=>m.id)
+  for(const cultist of mindless){
+    console.log("assigning key to:", cultist)
+    let user = await server.db.collection("users").findOne({ 'discord.userid': cultist })
+    console.log(user.discord.userid, user.discord.name, "num keys already:", user.allowlists)
+    await server.db.collection("users").updateOne({'discord.userid': user.discord.userid}, {$set: {'corrupted_keys': 1}})
+  }
+  console.log("num users:", mindless.length)
+}
+
 async function assignConjuringKeys() {
+  assignZealotKeys()
   return
   await server.loadDiscordUsers()
-  let date = lastChapterEndTime()
-  let basepath = `./data/checkpoints/checkpoint-${date.toISOString()}`
+  let date = new Date('2022-08-19T04:01:02.825Z') // lastChapterEndTime()
+  // let basepath = `./data/checkpoints/checkpoint-${date.toISOString()}`
+  let basepath = `./data/checkpoints/checkpoint-2022-08-19T04-01-02.825Z`
   let cults = checkpoint.loadCults(basepath)  
   console.log("cults:", cults)
   cults.sort((a, b) => {
@@ -87,16 +103,34 @@ async function assignConjuringKeys() {
   })
   console.log("cults:", cults)
   
+  const WINNER_SLICE = 50
+  const LOSER_SLICE = 30
   let winner = cults[0]
-  let cultUsers = {[winner.id]: []}
+  let losers = cults.slice(1)
+  let sum = 0
+  for(const cult of losers){
+    cult.score = Number(cult.score)
+    sum += cult.score 
+  }
+  for(const cult of losers){
+   cult.weight = cult.score / sum 
+   cult.keys = LOSER_SLICE * cult.weight
+  }
+  winner.keys = WINNER_SLICE
+  console.log("cults:", cults)
+  // return
+  let cultUsers = {}
+  for(const cult of cults){
+   cultUsers[cult.id] = []
+  }
   fs.createReadStream(`${basepath}-users.csv`)
     .pipe(csv())
     .on('data', (row) => {
       console.log(row);
-      if ( row.id !== "" && row.coins != 'NaN' && row.cult == winner.id) {
+      if ( row.id !== "" && row.coins != 'NaN' && row.cult != "") {
         let _user = {
           value: row.id,
-          weight: row.points == 0 ? 1 : Math.pow(row.points * 2, 0.8),
+          weight: row.points == 0 ? 1 : Math.pow(row.points * 2, 2),
           points: row.points,
           keys: 0
         }
@@ -104,57 +138,47 @@ async function assignConjuringKeys() {
       }
     })
     .on('end', async () => {
-      let users = cultUsers[winner.id]
-      console.log('CSV file successfully processed');
-      normalizeWeights(users)
-      let blacklist = new Set()
-      for (var i = 0; i < 1000; i++) {
-        while(true) {
-          var next = weightedRandomSelect(Math.random(), users)
-          if(blacklist.has(next.value)){
-            continue
-          }
-          if(next.points == 0){
-            continue
-          }
-          next.keys++
-          if(next.keys >= 10){
-            blacklist.add(next.value)
-          }
-          break
-        }
-      }
-      // console.log("num:", users.length)
-      console.log("num:", users.length, "users:", users)
-      let numWithKeys = 0, numWith10Keys = 0, totalKeys = 0
-      for (var user of users) {
-        if (user.keys == 0) {
-          continue
-        }
-        numWithKeys++
-        if (user.keys >= 10) {
-          numWith10Keys++
-        }
-        let member = server.getMember(user.value)
-        if(user.points >= 300){
-          if(member.displayName != 'gwax'){
-            console.log("high scorer:", member.displayName, "points:", user.points)
-            // await server.db.collection("users").updateOne({ 'discord.userid': user.value }, { $inc: { allowlists: 2 } })
-          }
-          // console.log("high scorer:", member.displayName, "points:", user.points)
-          // await server.db.collection("users").updateOne({ 'discord.userid': user.value }, { $inc: { allowlists: 2 } })
-        } 
-        if(user.points >= 600){
-          console.log("SUPER high scorer:", member.displayName, "points:", user.points)
-          // await server.db.collection("users").updateOne({ 'discord.userid': user.value }, { $inc: { allowlists: 2 } })
-        }
-        totalKeys += user.keys
-        // let member = server.getMember(user.value)
-        // console.log("userid:", user.value, "name:", member ? member.displayName : 'n/a', "numkeys:", user.keys, 'points:', user.points)
-        // await server.db.collection("users").updateOne({ 'discord.userid': user.value }, { $inc: { allowlists: user.keys } })
-      }
-      console.log("done", "numWithKeys:", numWithKeys, "numWith10Keys:", numWith10Keys, "totalKeys:", totalKeys)
+      for(const cult of cults){
+        
       
+        let users = cultUsers[cult.id]
+        console.log('CSV file successfully processed');
+        normalizeWeights(users)
+        let blacklist = new Set()
+        for (var i = 0; i < cult.keys; i++) {
+          while(true) {
+            var next = weightedRandomSelect(Math.random(), users)
+            if(blacklist.has(next.value)){
+              continue
+            }
+            if(next.points == 0){
+              continue
+            }
+            next.keys++
+            if(next.keys >= 4){
+              blacklist.add(next.value)
+            }
+            break
+          }
+        }
+        // console.log("num:", users.length)
+        // console.log("num:", users.length, "users:", users)
+        let numWithKeys = 0, numWith10Keys = 0, totalKeys = 0
+        for (var user of users) {
+          if (user.keys == 0) {
+            continue
+          }
+          numWithKeys++
+          if (user.keys >= 10) {
+            numWith10Keys++
+          }
+          totalKeys += user.keys
+          let member = server.getMember(user.value)
+          console.log("userid:", user.value, "name:", member ? member.displayName : 'n/a', "numkeys:", user.keys, 'points:', user.points)
+          await server.db.collection("users").updateOne({ 'discord.userid': user.value }, { $inc: { allowlists: user.keys } })
+        }
+        console.log("done", "cult:", cult.name, "numWithKeys:", numWithKeys, "numWith10Keys:", numWith10Keys, "totalKeys:", totalKeys)
+      }
       
     });
 }
