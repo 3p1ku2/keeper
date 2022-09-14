@@ -4,6 +4,7 @@
     "create-env": "printenv > .env"
   },
   "dependencies": {
+    "@alch/alchemy-web3": "^1.4.6",
     "@discordjs/builders": "^0.15.0",
     "@discordjs/rest": "^0.4.1",
     "@replit/database": "^2.0.2",

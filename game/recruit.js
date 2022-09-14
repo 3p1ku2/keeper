@@ -121,7 +121,9 @@ async function _handleJoin(server, member, updateStats = true) {
   if (member.id == '779732189482188830') {
     return
   }
-
+  // use second bot for role assignment
+  // let clients = server.getClients()
+  // let _member =  clients[clients.length-1].getMember(server.Id, member.id)
   // Add role
   let cult = server.Cults.get(user.cult_id)
   if (!cult) {
@@ -156,7 +158,7 @@ async function _handleJoin(server, member, updateStats = true) {
   if (user.referred_by && user.referred_by !== "") {
     console.log("handling referral...")
     let zealot = await server.getUserWithReferralKey(user.referred_by)
-    if (zealot) {
+    if (zealot && zealot.discord.userid != member.id) {
       console.log("zealot:", zealot)
       let referrals = getAllPastReferralsSet(zealot)
       let addOne = !referrals.has(member.id)
