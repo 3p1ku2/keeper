@@ -171,7 +171,7 @@ function spellDamage(spell) {
   if (greatness >= 16) {
     strength += 2;
   }
-  strength *= 1.6
+  strength *= 1.0
   return Math.round(strength)
 }
 

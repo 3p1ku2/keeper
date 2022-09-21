@@ -40,12 +40,13 @@ var buzzes = [
 ]
 
 async function handleMessage(message) {
-  if (message.interaction != null || message.channel.id == server.channels.AltarChannelId) {
+  if (message.interaction != null || message.channel.id == server.channels.AltarChannelId || message.channel.parentId == server.channels.ModSectionId) {
     return false
   }
   if(!message.member){
     return false
   }
+  
   if (!await isBesetByBees(message.member)) {
     return false
   }

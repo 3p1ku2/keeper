@@ -6,6 +6,61 @@ const { adventure } = require('../spells/adventure')
 const { getAllPastReferralsSet } = require('../utils/user')
 const { points } = require('../spells/points')
 
+const { createAlchemyWeb3 } = require("@alch/alchemy-web3")
+const { Spells } = require('../contracts/spells')
+
+const HoldersChannelId = '1019726306738438165'
+const HolderRoleId = '1019726306738438165'
+async function updateTokenGatedRoles(client) {
+  var guild = await client.client.guilds.cache.get(server.Id)
+  var web3 = createAlchemyWeb3(process.env.WEB3_URI) 
+  let spells = new web3.eth.Contract(Spells.abi, Spells.address)
+  let supply = await spells.methods.totalSupply().call()
+  let ids = []
+  for (var i = 0; i < supply; i++) {
+    ids.push(i+1)
+  }
+  ownerAddrs = new Set()
+  while(ids.length > 0){
+    let batch = ids.splice(0, 100)
+    let tokens = await spells.methods.explicitOwnershipsOf(batch).call()
+    for (const token of tokens) {
+      console.log("addr:", token[0])
+      ownerAddrs.add(token[0])
+    } 
+  }
+  ownerIds = new Set()
+  let users = await server.db.collection("users").find({address: {$in: Array.from(ownerAddrs)}, 'discord.userid': {$exists: true, $ne: ''}})
+  await users.map(async user => {
+    
+    let member = client.getMember(server.Id, user.discord.userid)
+    if (!member) {
+      // console.log("no member found for user:", user.discord.userid)
+      return
+    }
+    ownerIds.add(user.discord.userid)
+    if (!member.roles.cache.has(HolderRoleId)) {
+      console.log("user:", user.discord.userid, "does not have role:", HolderRoleId)
+      await member.roles.add(HolderRoleId)
+    }
+  }).toArray()
+  // get all users with HolderRoleId
+  let holderIds = await guild.roles.cache.get(HolderRoleId).members.map(m=>m.id)
+  for(const cultist of holderIds){
+    if(!ownerIds.has(cultist)){
+      let member = client.getMember(server.Id, cultist)
+      if (!member) {
+        console.log("no member found for user:", cultist)
+        continue
+      }
+      if (member.roles.cache.has(HolderRoleId)) {
+        console.log("user:",cultist, "has role:", HolderRoleId)
+        await member.roles.remove(HolderRoleId)
+      }
+    }
+  }
+}
+
 // Cleanup cult roles. Ensures only one cult role per user, matching their cult_id.
 // Also ensures that all users with a cult have the @cultist role.
 async function cleanRoles(client, date = new Date(0)) {
@@ -15,9 +70,11 @@ async function cleanRoles(client, date = new Date(0)) {
     'discord.userid': { $exists: true, $ne: '', $nin: server.admins },
     'cult_id': { $exists: true, $ne: '' },
     'created_at': { 
-      $gt: date, $lt: new Date(new Date().getTime() - 60 * 1000) 
+      // $gte: date, 
+      $lt: new Date(new Date().getTime() - 60 * 1000) 
     }
   }).toArray()
+  await updateTokenGatedRoles(client)
   console.log("loaded db users")
   let isFullUpdate = date.getTime() === 0
   var isTest = false
@@ -29,8 +86,8 @@ async function cleanRoles(client, date = new Date(0)) {
       console.log('empty userid:', user)
       continue
     }
-    if (user.discord.userid == '365989466126549013') {
-      console.log("found cloud caster")
+    if (user.discord.userid == '331173242905690123') {
+      console.log("found kote")
     }
     let member = client.getMember(server.Id, user.discord.userid)
     if (!member) {

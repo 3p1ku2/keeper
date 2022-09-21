@@ -65,6 +65,9 @@ const sabotageCmd = new SlashCommandBuilder()
 const zealotCmd = new SlashCommandBuilder()
   .setName('zealot')
   .setDescription('get your zealous link')
+  const walletCmd = new SlashCommandBuilder()
+  .setName('wallet')
+  .setDescription('check your wallet (no set wallet feature yet)')
 const inspectCmd = new SlashCommandBuilder()
   .setName('inspect')
   .setDescription('inspect a cultist')
@@ -99,6 +102,7 @@ async function init(server) {
         praiseCmd.toJSON(),
         believersCmd.toJSON(),
         beesCmd.toJSON(),
+        walletCmd.toJSON(),
         // fragmentsCmd.toJSON()
         ]
       },
@@ -267,7 +271,7 @@ async function handleInteraction(server, interaction) {
       case 'zealot':
         try {
           var user = await server.db.collection("users").findOne({ 'discord.userid': interaction.member.id })
-          await interaction.reply({ content: `https://spells.quest/?z=${user.referral_key}`, ephemeral: true })
+          await interaction.reply({ content: `https://spells.quest/bind/?z=${user.referral_key}`, ephemeral: true })
         } catch (error) {
           try {
             await interaction.reply({ content: `error: ${error} | talk to @hypervisor`, ephemeral: true })
@@ -284,6 +288,18 @@ async function handleInteraction(server, interaction) {
           await points.handleUserStatsInteraction(server, interaction)
         }
         break
+      case 'wallet':
+        try {
+          let user = await server.db.collection("users").findOne({'discord.userid': interaction.member.id})
+          if(user){
+            await interaction.reply({ content: `${user.address}`, ephemeral: true })
+          } else {
+            await interaction.reply({ content: `error: no user found`, ephemeral: true })
+          }
+        } catch(err) {
+          console.error("error:", err)
+        }
+        return
       case 'equip':
         let options = [{
           label: 'mask',

@@ -97,11 +97,11 @@ function getRollInputs(cults, userCult, n, minChants = 30, doLog = true) {
   }
   if (p < expected) {
     // trailing: skew 0-1
-    skew = 1 - ((expected - Math.pow(p, 1.3)) / expected)
+    skew = 1 - ((expected - Math.pow(p, 1.4)) / expected)
   } else if (p > expected) {
     // leading: skew 1-6
     // amount cult is leading over expectation / sum of other cult's expected scores
-    let ratio = (Math.pow(p, 0.7) - expected) / (1 - expected)
+    let ratio = (Math.pow(p, 0.6) - expected) / (1 - expected)
     skew = ratio * POSITIVE_SKEW_SCALAR + 1
   }
   let offset = ((avg - score) / avg) / cults.length * OFFSET_SCALAR
@@ -124,9 +124,9 @@ async function roll(cults, userCult, n, minChants = 30, doLog = true) {
   for (var i = 0; i < n; i++) {
     var out = 0
     if (i == 1) {
-      skew = Math.pow(skew, 0.3) // was 0.7 (lower power closer to 1)
+      skew = Math.pow(skew, 0.7) // was 0.7 (lower power closer to 1)
       offset /= 1.6
-      noise = Math.pow(noise, 0.9) // was 0.5 (lower power higher noise)
+      noise = Math.pow(noise, 0.86) // was 0.5 (lower power higher noise)
     }
     while (out <= 0 || out >= 1) {
       out = gaussian(0, 1, skew, noise) + offset

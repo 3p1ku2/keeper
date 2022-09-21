@@ -220,6 +220,9 @@ async function handleBound(msg){
   } else {
     msg.react(server.Emojis.NAY)
   }
+  setTimeout(() => {
+    msg.delete()
+  }, 10 * 1000)
   return
 }
 

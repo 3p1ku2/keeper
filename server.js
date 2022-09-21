@@ -220,6 +220,7 @@ var GLOBAL_CHANNELS = {
   AltarChannelId: "978078135193071657",
   AutonomousCouncilChannelId: "1007018715474313216",
   CultsSectionId: "970091626779254875",
+  ModSectionId: "1018242178469867570",
   // non-spells
   Banter: "1017668088096890901",
   Questions: "1017668716743381003",
