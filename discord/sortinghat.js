@@ -148,7 +148,11 @@ async function handleChair(interaction) {
       console.log("adding role:", cult.roleId, "to user:", member.id)
       await server.db.collection("users").update({ 'discord.userid': member.id }, { $set: { cult_id: cult.id } })
       await handleJoin(server, member)
-      await interaction.editReply({content: 'you have been assigned to ' + cult.getName(server) + '! head to <#986712037633720390> for your indoctrination...', ephemeral: true})
+      try {
+        await interaction.editReply({content: 'you have been assigned to ' + cult.getName(server) + '! head to <#986712037633720390> for your indoctrination...', ephemeral: true})
+      } catch(err){
+        console.error("edit reply err:", err)
+      }
     }
   } finally {
     release()

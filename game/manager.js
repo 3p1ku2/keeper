@@ -11,8 +11,12 @@ exports.manager = {
   run: async () => {
     let period = 6 * 60 * 1000
     while(true){
-      let start = Date.now()  
-      await updater.cleanRoles(server.getClients()[1])
+      let start = Date.now() 
+      try {
+        await updater.cleanRoles(server.getClients()[1])
+      } catch(err){
+        console.log("clean roles error:", err)
+      }
       let duration = Date.now() - start
       if(duration < period){
         await sleep(period - duration)

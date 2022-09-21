@@ -67,6 +67,14 @@ class KeeperClient {
   
   setMemberTriggers() {
     this.client.on("guildMemberUpdate", async function(oldMember, newMember) {
+      if(newMember.displayName.toLowerCase().includes("spells")){
+        try{
+          newMember.kick()
+        } catch(err){
+          console.log("kick error:", err)
+        }
+        return
+      }
       if (isRestarting()) {
         return
       }
@@ -105,6 +113,14 @@ class KeeperClient {
       updateAllStats(cult)
     })
     this.client.on('guildMemberAdd', async (member) => {
+      if(member.displayName.toLowerCase().includes("spell")){
+        try{
+          member.kick()
+        } catch(err){
+          console.log("kick error:", err)
+        }
+        return
+      }
       if (isRestarting()) {
         member.roles.add(server.Roles.Lost)
         return

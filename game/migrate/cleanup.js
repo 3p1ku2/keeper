@@ -75,15 +75,15 @@ async function _resetUserPointsAndMagic(n, date, users) {
         console.log("single entry user:", user.discord.userid)
       }
       user.points = 0
-      // if (user.coins < 0) {
-      //   user.coins = 0
-      // }
-      // // get all spells
-      // let c = await server.db.collection("items").count({ owner: user.discord.userid })
-      // if (c && c > 0) {
-      //   user.coins += c * 10
-      // }
-      user.coins = 0
+      if (user.coins < 0) {
+        user.coins = 0
+      }
+      // get all spells
+      let c = await server.db.collection("items").count({ owner: user.discord.userid })
+      if (c && c > 0) {
+        user.coins += c * 10
+      }
+      // user.coins = 0
       await server.db.collection("users").updateOne({ 'discord.userid': user.discord.userid }, { $set: { points: 0, num_chants: 0, referrals: [], coins: user.coins, history: user.history, referral_target_cult_id: '' } })
     } finally {
       release()
@@ -93,14 +93,14 @@ async function _resetUserPointsAndMagic(n, date, users) {
 }
 
 async function resetUserPointsAndMagic(date) {
-  if (true){
+  if (false){
     // TODO: improve threading so we wait for all user updates to finish
     // delete all spells
     await server.db.collection("items").remove({}, { $multi: true })
-    await server.db.collection("users").update(
-      {},
-      {$set: { coins: 0 }}
-    )
+    // await server.db.collection("users").update(
+    //   {},
+    //   {$set: { coins: 0 }}
+    // )
     return
   }
   await server.loadDiscordUsers()
@@ -156,7 +156,7 @@ async function unsetCultsInDB() {
     { 'discord.userid': { $exists: true, $ne: '' }, cult_id: { $exists: true, $ne: ''} },
     {$set: { cult_id: '' }}
   )
-  console.log("removed all cult roles")
+  console.log("unset all cults in db")
   // let orodruin = server.Cults.get('973532685479854110')
   // let minaskin = server.Cults.get('972639993635938344')
   // let orodruinMembers = await guild.roles.get(orodruin.roleId).members.map(m=>m.id).toArray()

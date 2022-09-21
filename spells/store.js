@@ -308,6 +308,16 @@ async function conjure(server, spellType, member) {
       return error
     }
     try {
+      await server.db.collection("events").insertOne({
+        "metadata": { "user": member.id, "coins": price },
+        "timestamp": new Date(),
+        "event": "conjure"
+      })
+    } catch (error) {
+      console.log(error)
+      return error
+    }
+    try {
       await server.db.collection("users").update({ 'discord.userid': member.id }, { $inc: { coins: -price } })
     } catch (error) {
       console.log(error)
@@ -317,6 +327,36 @@ async function conjure(server, spellType, member) {
   } catch (error) {
     return null
   }
+}
+
+async function countMagicSpent(userId) {
+  try {
+    let start = Math.floor((Date.now() - 4 * 60 * 60 * 1000) / (24 * 60 * 60 * 1000))
+    let agg = await server.db.collection("events").aggregate([
+      {
+        $match: {
+          "metadata.user": userId,
+          "event": "conjure",
+          "timestamp": {$gte: start}
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: {$sum: "$metadata.coins"},
+        }
+      }
+    ])
+    if (agg) {
+      let c = await agg.next()
+      if (c) {
+        return c.total
+      }
+    }
+  } catch(err){
+    console.log("count error:", err)
+  }
+  return 0
 }
 
 const UserMutex = new StringMutex()
@@ -353,6 +393,10 @@ async function handleConjureSelect(interaction) {
       }
       if (user.coins < spellType.price) {
         await interaction.editReply({ content: `not enough magic <:magic:975922950551244871>. ${spellType.name} costs <:magic:975922950551244871>${spellType.price} magic. you have <:magic:975922950551244871>${user.coins},,,`, components: [], ephemeral: true })
+        return
+      }
+      if( await countMagicSpent(interaction.member.id) >= 500 ){
+        await interaction.editReply({ content: `you've spent over 500 magic today, please wait until tomorrow to conjure again,,,`, components: [], ephemeral: true })
         return
       }
       let spell = await conjure(server, spellType, interaction.member)

@@ -25,7 +25,7 @@ const reset = async () => {
   
   // await cleanup.resetCultScores()
   // await cleanup.killAllCreatures()
-  // await cleanup.removeAllCreatures()
+  await cleanup.removeAllCreatures()
   // reset scores
   await cleanup.resetUserPointsAndMagic(date)
   // kill creatures
@@ -37,7 +37,7 @@ const reset = async () => {
 const startHomecoming = async () => {
   await server.kvstore.set("chapterStartTime", 1662458400 * 1000)
   await server.kvstore.set("nextChapaterEndTime", 1664092800 * 1000)
-  await server.kvstore.set("homecomingActive", true)
+  await server.kvstore.set("homecomingActive", false)
 }
 
 const stopHomecoming = async () => {
@@ -50,8 +50,8 @@ const stopHomecoming = async () => {
 const startGame = async () => {
   await server.kvstore.set("homecomingActive", false)
   await server.kvstore.set("isRestarting", false)
-  // await server.kvstore.set("chapterStartTime", (new Date()).getTime())
-  await server.kvstore.set("nextChapaterEndTime", 1664092800 * 1000)
+  await server.kvstore.set("chapterStartTime", (new Date()).getTime())
+  await server.kvstore.set("nextChapaterEndTime", 1664328780 * 1000)
 }
 
 const assignKeys = async () => {

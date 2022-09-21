@@ -176,12 +176,11 @@ async function assignWLKeys() {
 }
 
 async function assignConjuringKeys() {
-  // return
-  // await server.db.collection("users").insertOne({address: '0xc485712B3d7873D39928719B15D9BBdB92288D1C', allowlists:9})
-  assignWLKeys()
   return
+  // await server.db.collection("users").insertOne({address: '0xc485712B3d7873D39928719B15D9BBdB92288D1C', allowlists:9})
+  // assignWLKeys()
   await server.loadDiscordUsers()
-  let date = new Date('2022-09-08T19:10:16.965Z') // lastChapterEndTime()
+  let date = new Date('2022-09-12T10:12:32.131Z') // lastChapterEndTime()
   let basepath = `./data/checkpoints/checkpoint-${date.toISOString()}`
   // let basepath = `./data/checkpoints/checkpoint-2022-08-19T04-01-02.825Z`
   let cults = checkpoint.loadCults(basepath)  
@@ -191,8 +190,8 @@ async function assignConjuringKeys() {
   })
   console.log("cults:", cults)
   
-  const WINNER_SLICE = 50
-  const LOSER_SLICE = 0
+  const WINNER_SLICE = 200
+  const LOSER_SLICE = 20
   let winner = cults[0]
   let losers = cults.slice(1)
   let sum = 0
@@ -264,8 +263,9 @@ async function assignConjuringKeys() {
           }
           totalKeys += user.keys
           let member = server.getMember(user.value)
+          // let _user = await server.getUser(user.value)
           console.log("userid:", user.value, "name:", member ? member.displayName : 'n/a', "numkeys:", user.keys, 'points:', user.points)
-          await server.db.collection("users").updateOne({ 'discord.userid': user.value }, { $inc: { allowlists: user.keys } })
+          // await server.db.collection("users").updateOne({ 'discord.userid': user.value }, { $inc: { allowlists: user.keys } })
         }
         console.log("done", "cult:", cult.name, "numWithKeys:", numWithKeys, "numWith10Keys:", numWith10Keys, "totalKeys:", totalKeys)
       }

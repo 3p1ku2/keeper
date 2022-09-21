@@ -236,7 +236,7 @@ class Chest {
 }
 
 async function createChest(power, targetCult, creatorId) {
-  let numUnlocksReqd = Math.max(4, Math.round(0.75 * (power * 10 + (Math.random() * power * 3) + (Math.random() * 2))))
+  let numUnlocksReqd = Math.max(4, Math.round(1.5 * (power * 10 + (Math.random() * power * 3) + (Math.random() * 2))))
   let chest = new Chest(power, numUnlocksReqd, creatorId)
   console.log("getting next objects seq value...")
   chest.id = await server.getNextSequenceValue("objects")
